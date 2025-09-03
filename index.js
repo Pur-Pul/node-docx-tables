@@ -23,6 +23,27 @@ async function loadFile(file) {
   })
 }
 
+function getTextFromRun(run) {
+  if (!run) return '';
+
+  if (Array.isArray(run)) {
+    return run.map(getTextFromRun).join('');
+  }
+
+  const textNode = run['w:t'];
+  if (!textNode) return '';
+
+  if (typeof textNode === 'string') {
+    return textNode;
+  }
+
+  if (typeof textNode._ === 'string') {
+    return textNode._;
+  }
+
+  return '';
+}
+
 /**
  * Main Logic for extracting Table data from XML JSON data
  */
@@ -48,10 +69,10 @@ function parseTables(xmlJsonData) {
               }
               let data = ''
               wp.forEach((wpItem) => {
-                if (wpItem['w:r'] && wpItem['w:r']['w:t'] && (typeof wpItem['w:r']['w:t'] === 'string' || typeof wpItem['w:r']['w:t']._text === 'string')) {
-                  data += `${Buffer.from(wpItem['w:r']['w:t'] || wpItem['w:r']['w:t']._text, 'binary').toString('utf-8')}\n`
+                if (wpItem['w:r']) {
+                  data += getTextFromRun(wpItem['w:r']);
                 }
-              })
+              });
               //if (data) {
               rowObject.push({
                 position: {
@@ -103,7 +124,7 @@ module.exports = function (props) {
       const documentKey = Object.keys(data.files).find(key => /word\/document.*\.xml/.test(key))
 
       if (data.files[documentKey]) {
-        data.files[documentKey].async("binarystring").then(function (content) {
+        data.files[documentKey].async("text").then(function (content) {
           if (content.startsWith('ï»¿')) {
             content = content.substring(3);
           }

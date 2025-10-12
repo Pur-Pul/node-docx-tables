@@ -57,7 +57,14 @@ function parseTables(xmlJsonData) {
       }
       wTable.forEach((wTableItem) => {
         const result = {}
-        const wTableItemRow = wTableItem['w:tr']
+        let wTableItemRow = wTableItem['w:tr']
+        if (!wTableItemRow) return
+
+        // Ensure rows are always in array form
+        if (!Array.isArray(wTableItemRow)) {
+          wTableItemRow = [wTableItemRow]
+        }
+        
         wTableItemRow.forEach((wTableItemRowItem, rowIndex) => {
           const wTableItemRowColumn = wTableItemRowItem['w:tc']
           const rowObject = []

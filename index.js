@@ -66,7 +66,14 @@ function parseTables(xmlJsonData) {
         }
         
         wTableItemRow.forEach((wTableItemRowItem, rowIndex) => {
-          const wTableItemRowColumn = wTableItemRowItem['w:tc']
+          let wTableItemRowColumn = wTableItemRowItem['w:tc']
+          if (!wTableItemRowColumn) { return }
+
+          // Ensure columns are always in array form
+          if (!Array.isArray(wTableItemRowColumn)) {
+            wTableItemRowColumn = [wTableItemRowColumn]
+          }
+
           const rowObject = []
           wTableItemRowColumn.forEach((wTableItemRowColumnItem, colIndex) => {
             let wp = wTableItemRowColumnItem['w:p']
